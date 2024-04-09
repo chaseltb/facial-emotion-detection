@@ -13,27 +13,32 @@ def main():
 
     print("Starting face detection...")
     while True:
-        ret, frame = cap.read()
 
+        # Read frame from camera
+        ret, frame = cap.read()
         if not ret:
             print("Error: Couldn't read frame.")
-            break
+            continue
 
-        grey = to_grayscale(frame)
+        # Identify faces in frame
         face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        faces = face_classifier.detectMultiScale(frame, scaleFactor=1.1, minNeighbors=5, minSize=(40, 40))
 
-        faces = face_classifier.detectMultiScale(grey, scaleFactor=1.1, minNeighbors=5, minSize=(40, 40))
-
+        # Preprocess and draw onto frame
         for (x, y, w, h) in faces:
+            # Preprocess image
             img = pipline(frame[y:y+h, x:x+w, :])
             img = resize(img, w)
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
+            # Draw face on frame
             frame[y:y+h, x:x+w, :] = img
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 0), 4)
 
+        # Display frame
         cv2.imshow("Face Detection", frame)
 
+        # Break loop if 'q' is pressed
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
