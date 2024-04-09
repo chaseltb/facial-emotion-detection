@@ -1,0 +1,5 @@
+# Koray IDE files
+.idea/
+
+# Large files
+processed_data/

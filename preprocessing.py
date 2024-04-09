@@ -12,14 +12,7 @@ IMAGE_EXT: list[str] = [".jpg", ".jpeg", ".png"]
 IMG_SIZE: int = 50
 """Default size to resize images to."""
 
-def to_grayscale(img: np.ndarray) -> np.ndarray:
-    """ Converts an image to grayscale. """
-    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-def resize(img: np.ndarray, size: int = IMG_SIZE) -> np.ndarray:
-    """ Resizes image to a square image of size x size. """
-    return cv2.resize(img, (size, size))
-
+# Placed at the top for easy manipulation
 def pipline(img: np.ndarray) -> np.ndarray:
     """
     Preprocesses the image using a series of functions.
@@ -30,7 +23,16 @@ def pipline(img: np.ndarray) -> np.ndarray:
 
     img = to_grayscale(img)
     img = resize(img)
+
     return img
+
+def to_grayscale(img: np.ndarray) -> np.ndarray:
+    """ Converts an image to grayscale. """
+    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+def resize(img: np.ndarray, size: int = IMG_SIZE) -> np.ndarray:
+    """ Resizes image to a square image of size x size. """
+    return cv2.resize(img, (size, size))
 
 def write_image(item: tuple[str, np.ndarray]) -> None:
     """
@@ -66,6 +68,7 @@ def main():
     new_paths: list[str] = [path.replace(DATA_DIR, NEW_DATA_DIR) for path in files]
     with Pool() as pool:
         pool.map(write_image, zip(new_paths, images))
+
 
 if __name__ == "__main__":
     main()
