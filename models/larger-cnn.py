@@ -13,10 +13,9 @@ import torch.nn.functional as F
 import numpy as np
 pd.options.mode.chained_assignment = None
 
-random_seed = 517
 test_percent = 0.2
 labels_file = "..\\data\\labels.csv"
-save_path = ".\\trained_models\\better-cnn.pt"
+save_path = ".\\trained_models\\larger-cnn.pt"
 
 # Separate dataset into train, validate, test
 # Pull in labels CSV
@@ -26,7 +25,7 @@ X = labels['pth']
 Y = labels[["pth", "label"]]
 Y['label'] = Y['label'].apply(lambda x: classes.index(x))
 
-_, _, train, test = sklearn.model_selection.train_test_split(X, Y, test_size = test_percent, random_state = random_seed)
+_, _, train, test = sklearn.model_selection.train_test_split(X, Y, test_size = test_percent)
 
 class FacesDataset(Dataset):
     def __init__(self, img_labels, img_dir, transform=None, target_transform=None):
@@ -56,14 +55,15 @@ test_set = torch.utils.data.DataLoader(FacesDataset(test, os.path.join(os.path.d
 class Net(nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(1, 6, 5, padding=2)
+        self.conv1 = nn.Conv2d(1, 16, 5, padding=2)
         self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 4*4, 5, padding=2)
+        self.conv2 = nn.Conv2d(16, 4*4, 5, padding=2)
         self.conv3 = nn.Conv2d(16, 4*4*4, 5, padding=2)
         self.conv4 = nn.Conv2d(64, 4*4*4*4, 5, padding=2)
         self.fc1 = nn.Linear(16 * 24 * 24, 240)
         self.fc2 = nn.Linear(240, 84)
         self.fc3 = nn.Linear(84, 8)
+        self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
@@ -74,6 +74,7 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
+        x = self.softmax(x)
         return x
 
 net = Net()

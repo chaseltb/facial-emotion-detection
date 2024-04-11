@@ -12,7 +12,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 pd.options.mode.chained_assignment = None
 
-random_seed = 517
 test_percent = 0.2
 labels_file = "..\\data\\labels.csv"
 save_path = ".\\trained_models\\example-cnn.pt"
@@ -25,7 +24,7 @@ X = labels['pth']
 Y = labels[["pth", "label"]]
 Y['label'] = Y['label'].apply(lambda x: classes.index(x))
 
-_, _, train, test = sklearn.model_selection.train_test_split(X, Y, test_size = test_percent, random_state = random_seed)
+_, _, train, test = sklearn.model_selection.train_test_split(X, Y, test_size = test_percent)
 
 class FacesDataset(Dataset):
     def __init__(self, img_labels, img_dir, transform=None, target_transform=None):
@@ -61,6 +60,7 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(16 * 24 * 24, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 8)
+        self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
@@ -69,6 +69,7 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
+        x = self.softmax(x)
         return x
 
 net = Net()
@@ -86,7 +87,7 @@ print(device)
 
 net.to(device)
 
-for epoch in range(11):  # loop over the dataset multiple times
+for epoch in range(15):  # loop over the dataset multiple times
 
     running_loss = 0.0
     for i, data in enumerate(train_set, 0):
