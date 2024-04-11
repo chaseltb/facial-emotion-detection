@@ -111,6 +111,7 @@ for epoch in range(11):  # loop over the dataset multiple times
 correct = 0
 total = 0
 # since we're not training, we don't need to calculate the gradients for our outputs
+confusion_matrix = np.zeros((len(classes), len(classes)))
 with torch.no_grad():
     for data in test_set:
         images, labels = data[0].to(device), data[1].to(device)
@@ -118,10 +119,14 @@ with torch.no_grad():
         outputs = net(images)
         # the class with the highest energy is what we choose as prediction
         _, predicted = torch.max(outputs.data, 1)
+        for actual, prediction in zip(labels, predicted):
+            confusion_matrix[prediction][actual] += 1
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
 print(f'Accuracy of the network on the test images: {100 * correct // total} %')
+print("Actual values:")
+print(pd.DataFrame(confusion_matrix, columns=classes, index=classes))
 
 print("Saving model to " + save_path)
 torch.save(net, os.path.join(os.path.dirname(__file__), save_path))
