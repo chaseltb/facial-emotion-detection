@@ -9,7 +9,7 @@ NEW_DATA_DIR: str = "processed_data"
 """Relative path to the process data directory."""
 IMAGE_EXT: list[str] = [".jpg", ".jpeg", ".png"]
 """List of image extensions to use for fetching images from data directory."""
-IMG_SIZE: int = 50
+IMG_SIZE: int = 96
 """Default size to resize images to."""
 
 # Placed at the top for easy manipulation
@@ -21,7 +21,7 @@ def pipline(img: np.ndarray) -> np.ndarray:
     :return: The final processed image after being fed through all processing functions.
     """
 
-    img = to_grayscale(img)
+    # img = to_grayscale(img)
     img = resize(img)
 
     return img
