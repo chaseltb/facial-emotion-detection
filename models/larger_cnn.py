@@ -19,15 +19,18 @@ classes = ['anger', 'contempt', 'disgust', 'fear', 'happy', 'neutral', 'sad', 's
 
 class FacesDataset(Dataset):
     def __init__(self, img_labels, img_dir, transform=None, target_transform=None):
+        """Initialize the dataset with given labels and preprocessing"""
         self.img_labels = img_labels
         self.img_dir = img_dir
         self.transform = transform
         self.target_transform = target_transform
 
     def __len__(self):
+        """Return the amount of labels"""
         return len(self.img_labels)
 
     def __getitem__(self, idx):
+        """Return the image and its label at the given idx"""
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = read_image(img_path)
         label = self.img_labels.iloc[idx, 1]
@@ -40,6 +43,9 @@ class FacesDataset(Dataset):
 
 class Net(nn.Module):
     def __init__(self):
+        """
+        Initialize the CNN with multiple layers
+        """
         super().__init__()
         self.conv1 = nn.Conv2d(1, 16, 5, padding=2)
         self.pool = nn.MaxPool2d(2, 2)
@@ -52,6 +58,13 @@ class Net(nn.Module):
         self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
+        """
+        Defines the forward pass of the model.
+
+        x (Tensor): Input tensor.
+
+        Returns Tensor: Output tensor.
+        """
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = self.pool(F.relu(self.conv3(x)))
@@ -105,6 +118,7 @@ def train():
     Y = labels[["pth", "label"]]
     Y['label'] = Y['label'].apply(lambda x: classes.index(x))
 
+    # Split the model into training and testing groups
     _, _, train, test = sklearn.model_selection.train_test_split(X, Y, test_size=test_percent)
 
     train_set = torch.utils.data.DataLoader(
@@ -118,6 +132,7 @@ def train():
 
     import torch.optim as optim
 
+    # Evaluate the model using CrossEntropyLoss
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
@@ -165,7 +180,8 @@ def train():
                 confusion_matrix[prediction][actual] += 1
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-
+    
+    # Print the % the CNN correctly classified and dataframe with the confusion matrix 
     print(f'Accuracy of the network on the test images: {100 * correct // total} %')
     print("Actual values:")
     print(pd.DataFrame(confusion_matrix, columns=classes, index=classes))
