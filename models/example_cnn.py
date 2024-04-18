@@ -10,6 +10,7 @@ import pandas as pd
 import sklearn.model_selection
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 pd.options.mode.chained_assignment = None
 
 test_percent = 0.2
