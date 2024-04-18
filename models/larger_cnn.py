@@ -14,7 +14,8 @@ import numpy as np
 
 # There are here so they can be exposed to other scripts
 classes = ['anger', 'contempt', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
-"""Class names for the emotions in the dataset. Used to convert between string and integer labels."""
+"""Class names for the emotions in the dataset. Used to convert between string and integer labels.
+   The output of the model is the index of the class in this list. """
 
 class FacesDataset(Dataset):
     def __init__(self, img_labels, img_dir, transform=None, target_transform=None):
@@ -62,12 +63,35 @@ class Net(nn.Module):
         x = self.softmax(x)
         return x
 
-def getTransform():
-    """ Returns a transform object that can be used to transform images to be used in the model.
-        Written as a function, so it can be accessed both in this script and other scripts. """
-    return transforms.Compose([transforms.ConvertImageDtype(torch.float), transforms.Grayscale(), transforms.Normalize(0.5, 0.5)])
+# Written as a function, so it can be accessed both in this script and other scripts.
+def getTransform(classification=False, display=False) -> transforms.Compose:
+    """
+    Returns a transform object that can be used to transform images to be used in the model.
+    There is no need to set both classification and display to True.
+    :param classification: set to True if the transform is for classification, False otherwise.
+    :param display: set to True if the transform is for displaying the image, False otherwise.
+    :return: A composition of transforms for pytorch to use.
+    """
 
-if __name__== "__main__":
+    # This is the list of transforms that will be applied to the image
+    transformList: list[transforms] = [transforms.ConvertImageDtype(torch.float), transforms.Grayscale(),
+                                       transforms.Normalize(0.5, 0.5)]
+
+    # Need to convert PIL image to tensor when using model for classification
+    if classification:
+        transformList.insert(0, transforms.ToTensor())
+
+    # Need to convert tensor to PIL image when displaying image
+    if display:
+        transformList.insert(0, transforms.ToTensor())
+        transformList.append(transforms.ToPILImage())
+
+    # Compose the transforms and return
+    return transforms.Compose(transformList)
+
+def train():
+    """ Trains a CNN model on the dataset. """
+
     pd.options.mode.chained_assignment = None
 
     test_percent = 0.2
@@ -100,7 +124,6 @@ if __name__== "__main__":
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # Assuming that we are on a CUDA machine, this should print a CUDA device:
-
     print(device)
 
     net.to(device)
@@ -126,3 +149,30 @@ if __name__== "__main__":
             if i % 1000 == 999:
                 print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 1000:.3f}')
                 running_loss = 0.0
+
+    correct = 0
+    total = 0
+    # since we're not training, we don't need to calculate the gradients for our outputs
+    confusion_matrix = np.zeros((len(classes), len(classes)))
+    with torch.no_grad():
+        for data in test_set:
+            images, labels = data[0].to(device), data[1].to(device)
+            # calculate outputs by running images through the network
+            outputs = net(images)
+            # the class with the highest energy is what we choose as prediction
+            _, predicted = torch.max(outputs.data, 1)
+            for actual, prediction in zip(labels, predicted):
+                confusion_matrix[prediction][actual] += 1
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    print(f'Accuracy of the network on the test images: {100 * correct // total} %')
+    print("Actual values:")
+    print(pd.DataFrame(confusion_matrix, columns=classes, index=classes))
+
+    print("Saving model to " + save_path)
+    torch.save(net, os.path.join(os.path.dirname(__file__), save_path))
+
+# All actions that should not occur when script is *imported* should be in this block
+if __name__ == "__main__":
+    train()

@@ -21,7 +21,7 @@ def pipline(img: np.ndarray) -> np.ndarray:
     :return: The final processed image after being fed through all processing functions.
     """
 
-    # img = to_grayscale(img)
+    # Only resizing during preprocessing at the moment
     img = resize(img)
 
     return img
