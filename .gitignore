@@ -3,3 +3,5 @@
 
 # Large files
 processed_data/
+
+models/trained_models/knn
