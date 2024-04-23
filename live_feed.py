@@ -2,11 +2,11 @@ from PIL import Image
 from tkinter.messagebox import askyesno
 
 from preprocessing import *
-from models.larger_cnn import *
+from models.best_cnn import *
 
 def main(showPreprocessing=False):
     print("Loading model...")
-    model = torch.load("models/trained_models/larger-cnn.pt", map_location=torch.device('cpu'))
+    model = torch.load("models/trained_models/best-cnn.pt", map_location=torch.device('cpu'))
     model.eval()
     print("Model loaded...")
 
@@ -16,10 +16,10 @@ def main(showPreprocessing=False):
     print("Camera is on...")
 
     # Ensure camera is open (this takes a couple seconds)
-    print("Checking if camera is open...")
-    if not cap.open(0):
-        print("Error: Couldn't open camera.")
-        exit(1)
+    # print("Checking if camera is open...")
+    # if not cap.open(0):
+    #     print("Error: Couldn't open camera.")
+    #     exit(1)
 
     print("Starting face detection...")
     while True:
@@ -46,8 +46,11 @@ def main(showPreprocessing=False):
             transform = getTransform(classification=True)  # Get training transform for model
             PIL_img = transform(PIL_img)  # Apply transform to PIL image before feeding to model
             output = model(PIL_img.unsqueeze(0))
-            _, predicted = torch.max(output, 1)  # Get most confident prediction from model
+            test, predicted = torch.max(output, 1)  # Get most confident prediction from model
             prediction: str = classes[predicted.item()]  # Get the label from the prediction
+            # Get confidence of prediction
+            confidence = torch.nn.functional.softmax(output, dim=1)[0] * 100
+            confidence = confidence[predicted[0]].item()
 
             # Display processed image in frame
             if showPreprocessing:
@@ -61,7 +64,9 @@ def main(showPreprocessing=False):
             # Draw rectangle around face and label with emotion
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
             cv2.putText(frame, f"Emotion: {prediction}", (x, y + h + 25),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 0), 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
+            cv2.putText(frame, f"Confidence: {round(confidence)}%", (x, y + h + 55),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
 
         # Display window
         cv2.imshow("Face Detection", frame)
