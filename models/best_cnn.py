@@ -176,7 +176,7 @@ def train():
 
     net.to(device)
 
-    for epoch in range(15):  # loop over the dataset multiple times
+    for epoch in range(16):  # loop over the dataset multiple times
 
         running_loss = 0.0
         for i, data in enumerate(train_set, 0):
