@@ -20,4 +20,4 @@ Please note that for the KNN, validation has shown that k=153 is the best possib
 
 ## Viewing the Live Feed
 
-Running ./live_feed.py will attempt to create a connection to the camera, identify faces in frame, and will assign an emotion to the face. Live_feed utilizes the most accurate model, best-cnn.
+Running ./live_feed.py will attempt to create a connection to the camera, identify faces in frame, and will assign an emotion to the face. Live_feed utilizes the most accurate model, the CNN.
