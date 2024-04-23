@@ -1,0 +1,11 @@
+K value: 153 Test accuracy: 0.26051464063886426
+Predicted value ->  anger  contempt  disgust  fear  happy  neutral  sad  surprise
+True value
+anger                 113        52      102    30    109        3   53       247
+contempt               44        91       81    21    245        5   33       156
+disgust                55        50       89    22    182        7   54       234
+fear                   40        39       72    85    113        4   55       210
+happy                  16        30       23    11    608       12   23       122
+neutral                22        36       43    14    259       14   21       150
+sad                    47        33       71    27    139        5   85       203
+surprise               50        56       72    35    255        7   67       383
