@@ -7,9 +7,8 @@ import cv2
 from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import classification_report
 from sklearn.decomposition import PCA
-
+from sklearn import metrics
 
 DATA_DIRECTORY = os.path.join(os.path.dirname(__file__), "../data")
 CATEGORIES = ['anger', 'contempt', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
@@ -41,6 +40,21 @@ def save_model(model):
 
     knnPickleFile.close()
 
+def confusion_matrix(y_test, y2):
+    # For labels
+    mapping = {i: CATEGORIES[i] for i in range(8)}
+
+    # By saying labels=classes, we ensure the order for labeling
+    matrix = metrics.confusion_matrix(y_test, y2, labels=CATEGORIES)
+
+    # Convert to DataFrame for labeling
+    df = pd.DataFrame(matrix)
+    df.rename(columns=mapping, inplace=True)
+    df.rename(index=mapping, inplace=True)
+    df.rename_axis("True value", axis="index", inplace=True)
+    df.rename_axis("Predicted value ->", axis="columns", inplace=True)
+    print(df.to_string())
+
 def train():
     print("Reading images and creating training data...")
     x_train, x_test, y_train, y_test = create_datasets()
@@ -59,11 +73,10 @@ def train():
     print("Testing the model...")
     y2 = svc.predict(x_test)
 
-    print("Accuracy on unknown data is", accuracy_score(y_test, y2))
-    print("Accuracy on unknown data is", classification_report(y_test, y2))
+    print(f"Testing accuracy: {round(accuracy_score(y_test, y2), 3) * 100}%")
 
-    result = pd.DataFrame({'original': y_test, 'predicted': y2})
-    print(result)
+    # By saying labels=classes, we ensure the order for labeling
+    confusion_matrix(y_test, y2)
 
 if __name__ == "__main__":
     train()

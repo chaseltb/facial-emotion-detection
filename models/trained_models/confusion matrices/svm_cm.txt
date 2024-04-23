@@ -1,15 +1,11 @@
-Accuracy on unknown data is 0.3891748003549246
-Accuracy on unknown data is               precision    recall  f1-score   support
-
-       anger       0.32      0.37      0.34       695
-    contempt       0.32      0.23      0.27       666
-     disgust       0.32      0.29      0.30       657
-        fear       0.33      0.26      0.29       627
-       happy       0.63      0.83      0.72       884
-     neutral       0.31      0.33      0.32       536
-         sad       0.29      0.18      0.22       628
-    surprise       0.37      0.42      0.39       942
-
-    accuracy                           0.39      5635
-   macro avg       0.36      0.37      0.36      5635
-weighted avg       0.37      0.39      0.37      5635
+Testing accuracy: 38.3%
+Predicted value ->  anger  contempt  disgust  fear  happy  neutral  sad  surprise
+True value                                                                       
+anger                 289        70       89    51     26       36   45       104
+contempt              100       146       49    25    124       63   28        97
+disgust               131        37      184    52     90       35   43        99
+fear                  100        27       55   152     16       27   48       199
+happy                  23        31       27     9    698       24   11        27
+neutral                78        45       24    37     50      184   32       106
+sad                    93        49       85    60     55       57  100       134
+surprise               83        48       65   120     87       94   55       407
