@@ -2,7 +2,7 @@ from PIL import Image
 from tkinter.messagebox import askyesno
 
 from preprocessing import *
-from models.best_cnn import *
+from models.cnn import *
 
 def main(showPreprocessing=False):
     print("Loading model...")
@@ -16,10 +16,10 @@ def main(showPreprocessing=False):
     print("Camera is on...")
 
     # Ensure camera is open (this takes a couple seconds)
-    # print("Checking if camera is open...")
-    # if not cap.open(0):
-    #     print("Error: Couldn't open camera.")
-    #     exit(1)
+    print("Checking if camera is open...")
+    if not cap.open(0):
+        print("Error: Couldn't open camera.")
+        exit(1)
 
     print("Starting face detection...")
     while True:
