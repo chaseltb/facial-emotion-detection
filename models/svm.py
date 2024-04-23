@@ -6,10 +6,8 @@ import pandas as pd
 import cv2
 from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
-from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
-from sklearn.linear_model import SGDClassifier
 from sklearn.decomposition import PCA
 
 
@@ -43,7 +41,7 @@ def save_model(model):
 
     knnPickleFile.close()
 
-if __name__ == "__main__":
+def train():
     print("Reading images and creating training data...")
     x_train, x_test, y_train, y_test = create_datasets()
 
@@ -54,7 +52,6 @@ if __name__ == "__main__":
 
     print("Training the model...")
     svc = LinearSVC(verbose=True, max_iter=10000, dual=False)
-    # svc = SGDClassifier(verbose=1, n_jobs=-1)
     svc.fit(x_train, y_train)
 
     save_model(svc)
@@ -67,3 +64,6 @@ if __name__ == "__main__":
 
     result = pd.DataFrame({'original': y_test, 'predicted': y2})
     print(result)
+
+if __name__ == "__main__":
+    train()
